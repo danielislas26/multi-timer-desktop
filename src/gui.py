@@ -33,6 +33,7 @@ class App(customtkinter.CTk):
         self.geometry("250x250")
         self.title("Cronometro")
 
+
         mi_fuente_digital = customtkinter.CTkFont(family="Share Tech Mono", size=17)
         mi_fuente_numeral = customtkinter.CTkFont(family="DS-Digital", size=20, weight="bold")
         print([f for f in tkinter.font.families() if "Share" in f])
@@ -48,11 +49,16 @@ class App(customtkinter.CTk):
             self, border_width=0, fg_color="transparent",
             justify="center", font=mi_fuente_numeral, placeholder_text="00:00:00"
         )
-       
         
         self.time_1entry.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-        self.time_1entry.bind("<KeyRelease>", self.formatear_tiempo)
+        
+        self.time_1entry.bind("<Control-v>", self.bloquear_pegado)
+        self.time_1entry.bind("<Control-V>", self.bloquear_pegado)
+        self.time_1entry.bind("<Button-3>", self.bloquear_menu)  # Botón derecho
+        self.time_1entry.bind("<Shift-Insert>", self.bloquear_pegado)
+
         self.time_1entry.bind("<Key>", self.formatear_tiempo)
+       
 
         self.button = customtkinter.CTkButton(
             self, text="play", command=self.button_click,
@@ -73,6 +79,11 @@ class App(customtkinter.CTk):
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
+
+    def bloquear_menu(self, event):
+        return "break"  # Evita que aparezca el menú
+    def bloquear_pegado(self, event):
+        return "break"  # Cancela el evento
 
     def get_time(self):
 
@@ -106,9 +117,12 @@ class App(customtkinter.CTk):
             # Máximo 6 dígitos
             if len(self.digitos) < 6:
                 self.digitos += event.char
+            else:
+                self.bell()
 
         else:
-            return
+            self.bell()
+            return "break"
 
         # Rellenar con ceros
         texto = self.digitos.zfill(6)
@@ -125,6 +139,7 @@ class App(customtkinter.CTk):
         self.time_1entry.icursor("end")
 
         self.check_entry()
+        
         return "break"
 
     def actualizar_timer(self):
